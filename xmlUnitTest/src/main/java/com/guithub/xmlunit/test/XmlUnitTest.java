@@ -5,18 +5,26 @@ import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.Difference;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 
 public class XmlUnitTest {
 
-  public static void main(String[] args) {
-
-    //не всегда работает, причину пока не нашел
+  public static void main(String[] args) throws ParserConfigurationException {
 
     Source source1 = Input.fromFile("first.xml").build();
     Source source2 = Input.fromFile("second.xml").build();
 
-    Diff myDiff = DiffBuilder.compare(source1).withTest(source2).build();
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    dbf.setValidating(false);
+    dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",false);
+
+    Diff myDiff = DiffBuilder.compare(source1)
+        .withTest(source2)
+        .withDocumentBuilderFactory(dbf)
+        .build();
+
     Iterable<Difference> differences = myDiff.getDifferences();
     for (Difference difference : differences) {
       System.out.println(difference);
